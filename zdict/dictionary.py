@@ -149,10 +149,11 @@ class DictBase(metaclass=abc.ABCMeta):
 
         :param word: single word
         '''
-
+        headers = {'user-agent':"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0"}
+        
         try:
             res = requests.get(
-                self._get_url(word), timeout=self.args.query_timeout
+                self._get_url(word), timeout=self.args.query_timeout, headers=headers
             )
         except requests.exceptions.ReadTimeout as e:
             raise exceptions.TimeoutError()

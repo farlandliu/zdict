@@ -40,7 +40,7 @@ class YahooDict(DictBase):
         main_explanations = content.get('explain', [])
         if self.args.verbose:
             main_explanations.extend(content.get('verbose', []))
-
+            
         for speech in main_explanations:
             self.color.print(speech[0], 'lred')
             for meaning in speech[1:]:
