@@ -9,17 +9,17 @@ from zdict.exceptions import NotFoundError
 from zdict.models import Record
 
 
-class CobDict(DictBase):
+class WebUSDict(DictBase):
 
     API = 'https://www.collinsdictionary.com/dictionary/english/{word}'
 
     @property
     def provider(self):
-        return 'cobsuper'
+        return 'webus'
 
     @property
     def title(self):
-        return 'Collins Cobuild Ads Dictionary'
+        return 'Webster US Dictionary'
 
     def _get_url(self, word) -> str:
         return self.API.format(word=word)
@@ -45,33 +45,25 @@ class CobDict(DictBase):
             self.color.print(speech[0],'blue')
             # print sense items
             for meaning in speech[1:]:
-                
+
                 for sentence in meaning[1:]:
                     if sentence:
                         print(' ' * 2, end='')
                         for i, s in enumerate(sentence.split('*')):
                             self.color.print(
                                 s,
-                                
+
                                 end=''
                             )
                     print()
             print()
 
-        
+
 
     def query(self, word: str):
         webpage = self._get_raw(word)
         data_root = BeautifulSoup(webpage, "html.parser")
-        data_root = data_root.find('div', class_='dictionary Cob_Adv_Brit')
-        # sometimes there are two dict sections, if there are two,
-        # we use the 2nd one
-        dicts = data_root.find_all('div', 'dictentry')
-        if len(dicts) >1 :
-            data = dicts[1]
-        else:
-            data = dicts[0]
-
+        data = data_root.find('div', class_='dictionary Large_US_Webster')
         content = {}
 
         # handle record.word
@@ -84,17 +76,17 @@ class CobDict(DictBase):
         pronu_value = data.find('span', class_='mini_h2')
         if pronu_value:
             content['pronounce'] = pronu_value.text.replace('\n','')
-    
+
         # handle sound
         # skip
         # Handle explain
         definations = data.find(
-            class_='content definitions cobuild br'
+            class_='content definitions american'
         )
         # explain = ['word forms',[sense1, sense2]]
         # sense = [grammar, example1,examle2]
         content['explain'] = []
-        
+
         # handle word forms = content['explain'][0]
         forms = definations.find('span', class_='form inflected_forms type-infl')
         forms_text = forms.text if forms else ' '
@@ -133,7 +125,7 @@ class CobDict(DictBase):
                 sense_item.append(sen_num + extra.text)
             content['explain'].append(sense_item)
 
-        # todo: copyright for dictionary     
+        # todo: copyright for dictionary
 
         record = Record(
             word=word,
